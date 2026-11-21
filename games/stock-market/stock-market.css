@@ -1,0 +1,2589 @@
+/*
+ * Stock Market's look. Loaded only on /stock-market (app/stock-market/page.tsx), and every rule
+ * is scoped under the route's `.stock-market` wrapper with :where(), which adds no specificity,
+ * so the cascade inside this file works as it always has. Site-wide styles (palette tokens,
+ * buttons, the start screen and lobby card) are in app/globals.css.
+ */
+
+/* The wrapper only scopes styles: it doesn't make a box, so layout is unchanged. */
+.stock-market {
+  display: contents;
+}
+
+:where(.stock-market) .up {
+  color: var(--up);
+}
+:where(.stock-market) .down {
+  color: var(--down);
+}
+:where(.stock-market) .logo-arrow {
+  color: var(--accent);
+}
+/* ---------- Layout ---------- */
+:where(.stock-market) .game {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 320px;
+  gap: 16px;
+  padding: 16px;
+  min-height: 100vh;
+  align-items: start;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game {
+    grid-template-columns: 1fr;
+    padding: 8px;
+  }
+}
+/* ---------- Board ---------- */
+:where(.stock-market) .board {
+  display: grid;
+  aspect-ratio: 1;
+  width: 100%;
+  background: var(--paper);
+  border: 0.5cqw solid var(--line);
+  border-radius: 0.6cqw;
+  box-shadow: 0 0.6cqw 2.5cqw rgb(0 0 0 / 0.12);
+  padding: 0.6cqw;
+  gap: 0.15cqw;
+  overflow: hidden;
+  font-weight: 700;
+  line-height: 1.05;
+}
+:where(.stock-market) .sq {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: space-between;
+  text-align: center;
+  padding: 0.35cqw 0.2cqw;
+  border: 0.12cqw solid var(--line);
+  background: var(--paper);
+  overflow: hidden;
+  min-width: 0;
+  transition:
+    box-shadow 0.15s,
+    transform 0.15s;
+}
+:where(.stock-market) .sq-title {
+  font-size: 0.92cqw;
+  font-weight: 900;
+  letter-spacing: -0.01em;
+  hyphens: manual;
+}
+:where(.stock-market) .sq-small {
+  font-size: 0.72cqw;
+  opacity: 0.9;
+}
+:where(.stock-market) .sq-small.strong {
+  font-weight: 900;
+  opacity: 1;
+}
+:where(.stock-market) .sq-tiny {
+  font-size: 0.55cqw;
+  opacity: 0.8;
+}
+:where(.stock-market) .sq-move {
+  font-size: 0.75cqw;
+  white-space: nowrap;
+}
+:where(.stock-market) .sq-arrow {
+  font-size: 1.25cqw;
+  vertical-align: -0.1cqw;
+}
+:where(.stock-market) .sq-start .start-title {
+  color: var(--ink);
+  font-size: 1.4cqw;
+  font-weight: 900;
+}
+:where(.stock-market) .start-arrows {
+  display: flex;
+  gap: 0.6cqw;
+  font-size: 1.2cqw;
+}
+:where(.stock-market) .start-arrows small {
+  font-size: 0.6cqw;
+}
+:where(.stock-market) .sq-corner {
+  background: var(--card);
+  justify-content: center;
+  gap: 0.3cqw;
+}
+:where(.stock-market) .corner-pay {
+  font-size: 2cqw;
+  font-weight: 900;
+}
+:where(.stock-market) .sq-path {
+  box-shadow:
+    inset 0 0 0 0.35cqw rgb(255 255 255 / 0.85),
+    inset 0 0 0 0.6cqw rgb(0 0 0 / 0.35);
+}
+:where(.stock-market) .sq-landing {
+  z-index: 2;
+  box-shadow:
+    0 0 0 0.35cqw #111,
+    0 0 1.5cqw 0.4cqw rgb(255 220 0 / 0.9);
+  animation: land 0.4s ease-out;
+}
+:where(.stock-market) .entry-banner {
+  position: absolute;
+  background: var(--line);
+}
+:where(.stock-market) .entry-bottom {
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 0.55cqw;
+}
+:where(.stock-market) .entry-top {
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 0.55cqw;
+}
+:where(.stock-market) .entry-left {
+  right: 0;
+  top: 0;
+  bottom: 0;
+  width: 0.55cqw;
+}
+:where(.stock-market) .entry-right {
+  left: 0;
+  top: 0;
+  bottom: 0;
+  width: 0.55cqw;
+}
+/* Tokens */
+:where(.stock-market) .tokens {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  align-content: center;
+  gap: 0.2cqw;
+  pointer-events: none;
+}
+:where(.stock-market) .token-current {
+  outline: 0.25cqw solid #111;
+  outline-offset: 0.05cqw;
+}
+/* Shareholders' meeting lanes */
+:where(.stock-market) .lane-cell {
+  display: grid;
+  place-items: center;
+  font-size: 0.85cqw;
+  border: 0.1cqw solid var(--rule);
+  background: var(--card);
+  color: var(--ink);
+  white-space: nowrap;
+}
+:where(.stock-market) .lane-split {
+  background: var(--paper-2);
+}
+:where(.stock-market) .lane-label {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5cqw;
+  padding: 0 0.6cqw;
+  border: 0.1cqw solid var(--rule);
+  background: var(--card);
+  min-width: 0;
+  overflow: hidden;
+}
+:where(.stock-market) .lane-label-v {
+  flex-direction: column;
+  padding: 0.6cqw 0;
+}
+:where(.stock-market) .lane-label-v .lane-title,
+:where(.stock-market) .lane-label-v .lane-sub {
+  writing-mode: vertical-rl;
+}
+:where(.stock-market) .lane-title {
+  color: #2f8f86;
+  font-size: 1.05cqw;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  white-space: nowrap;
+}
+:where(.stock-market) .lane-sub {
+  font-size: 0.65cqw;
+  color: var(--muted);
+  white-space: nowrap;
+}
+/* Salary corners */
+:where(.stock-market) .career {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  gap: 0.3cqw;
+  border: 0.12cqw solid var(--rule);
+  background: var(--card);
+  transition: background 0.2s;
+}
+:where(.stock-market) .career-icon {
+  font-size: 2.2cqw;
+}
+:where(.stock-market) .career-name {
+  font-size: 1.05cqw;
+  font-weight: 900;
+}
+:where(.stock-market) .career-rule {
+  font-size: 0.8cqw;
+  color: var(--muted);
+}
+:where(.stock-market) .career-active {
+  background: #fff4b8;
+  box-shadow: inset 0 0 0 0.3cqw #f5c400;
+}
+/* Center */
+:where(.stock-market) .board-center {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: center;
+  gap: 0.8cqw;
+  padding: 0.8cqw;
+  min-width: 0;
+}
+:where(.stock-market) .logo {
+  text-align: center;
+  font-size: 3.6cqw;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+  line-height: 1;
+}
+:where(.stock-market) .logo-flipped {
+  transform: rotate(180deg);
+}
+/* ---------- Price tracker ---------- */
+:where(.stock-market) .tracker {
+  --col-w: 3.2cqw;
+  --row-h: 2.05cqw;
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  border: 0.25cqw solid var(--line);
+  background: var(--line);
+  font-size: 0.8cqw;
+}
+:where(.stock-market) .tracker-names {
+  display: flex;
+  flex-direction: column;
+}
+:where(.stock-market) .tracker-head,
+:where(.stock-market) .tracker-name {
+  height: var(--row-h);
+  display: flex;
+  align-items: center;
+  padding: 0 0.5cqw;
+  font-size: 0.7cqw;
+  font-weight: 900;
+  white-space: nowrap;
+  border-bottom: 0.08cqw solid rgb(0 0 0 / 0.25);
+}
+:where(.stock-market) .tracker-head {
+  background: var(--line);
+  color: #fff;
+}
+:where(.stock-market) .tracker-window {
+  position: relative;
+  overflow: hidden;
+}
+:where(.stock-market) .tracker-strip {
+  position: absolute;
+  top: 0;
+  left: 50%;
+  transition: transform 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+:where(.stock-market) .tracker-row {
+  display: flex;
+  height: var(--row-h);
+  border-bottom: 0.08cqw solid rgb(0 0 0 / 0.25);
+}
+:where(.stock-market) .tracker-levels {
+  background: var(--line);
+  color: #c8c8cc;
+  font-size: 0.65cqw;
+}
+:where(.stock-market) .tracker-cell {
+  flex: none;
+  width: var(--col-w);
+  display: grid;
+  place-items: center;
+  border-right: 0.06cqw solid rgb(0 0 0 / 0.18);
+  font-variant-numeric: tabular-nums;
+}
+:where(.stock-market) .tracker-slider {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  width: calc(var(--col-w) + 0.6cqw);
+  transform: translateX(-50%);
+  border: 0.35cqw solid #111;
+  border-radius: 0.3cqw;
+  box-shadow:
+    0 0 0 100vmax rgb(255 255 255 / 0.22),
+    0 0 1cqw rgb(0 0 0 / 0.6);
+  pointer-events: none;
+}
+:where(.stock-market) .tracker-status {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 1cqw;
+  padding: 0.4cqw 0.6cqw;
+  background: var(--paper);
+  font-size: 0.9cqw;
+}
+:where(.stock-market) .delta {
+  font-weight: 900;
+  animation: pop 0.5s ease-out;
+}
+:where(.stock-market) .delta-up {
+  color: var(--up);
+}
+:where(.stock-market) .delta-down {
+  color: var(--down);
+}
+:where(.stock-market) .gauge {
+  position: relative;
+  flex: 1;
+  height: 0.5cqw;
+  border-radius: 1cqw;
+  background: linear-gradient(90deg, var(--down), var(--rule) 50%, var(--up));
+}
+:where(.stock-market) .gauge-fill {
+  position: absolute;
+  top: 50%;
+  width: 1.1cqw;
+  height: 1.1cqw;
+  border-radius: 50%;
+  background: #111;
+  border: 0.2cqw solid #fff;
+  transform: translate(-50%, -50%);
+  transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* ---------- Side panel ---------- */
+:where(.stock-market) .panel {
+  background: var(--panel);
+  border-radius: 12px;
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  box-shadow: 0 2px 12px rgb(0 0 0 / 0.08);
+  border: 1px solid var(--rule);
+  position: sticky;
+  top: 16px;
+  max-height: calc(100vh - 32px);
+  overflow: auto;
+}
+:where(.stock-market) .panel h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+:where(.stock-market) .panel h2 {
+  margin: 0 0 8px;
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+:where(.stock-market) .panel-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+:where(.stock-market) .panel-tools {
+  display: flex;
+  gap: 12px;
+  font-size: 13px;
+}
+:where(.stock-market) .turn {
+  border: 2px solid;
+  border-radius: 10px;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+:where(.stock-market) .turn-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 17px;
+}
+:where(.stock-market) .turn-cash {
+  margin-left: auto;
+  font-weight: 800;
+  font-variant-numeric: tabular-nums;
+}
+:where(.stock-market) .controls {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+:where(.stock-market) .dice-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  min-height: 48px;
+}
+:where(.stock-market) .dice-total {
+  font-size: 22px;
+  font-weight: 900;
+}
+:where(.stock-market) .btn-danger {
+  color: var(--down);
+  border-color: #f0c2ad;
+}
+:where(.stock-market) .btn-small {
+  padding: 4px 8px;
+  font-size: 12px;
+}
+:where(.stock-market) .btn-sq {
+  width: 34px;
+  padding: 6px 0;
+}
+:where(.stock-market) .career-picks {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px;
+}
+:where(.stock-market) .career-pick {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 2px;
+  padding: 7px 9px;
+  border-radius: 8px;
+  border: 1.5px solid var(--rule);
+  background: var(--card);
+  font-weight: 700;
+  font-size: 13px;
+  cursor: pointer;
+  text-align: left;
+}
+:where(.stock-market) .career-pick small {
+  color: var(--muted);
+  font-weight: 500;
+}
+:where(.stock-market) .career-pick-on {
+  border-color: var(--accent);
+  background: var(--highlight);
+}
+:where(.stock-market) .start-picks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+:where(.stock-market) .sell-box {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+:where(.stock-market) .sell-row {
+  display: grid;
+  grid-template-columns: 1fr auto 56px auto;
+  align-items: center;
+  gap: 6px;
+}
+:where(.stock-market) .sell-row input,
+:where(.stock-market) .qty input {
+  width: 100%;
+  min-width: 0;
+  padding: 4px 6px;
+  border: 1.5px solid var(--rule);
+  border-radius: 6px;
+  font-size: 13px;
+  background: var(--card);
+}
+:where(.stock-market) .qty {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+:where(.stock-market) .qty input {
+  width: 80px;
+  font-size: 15px;
+  padding: 6px;
+  text-align: center;
+}
+:where(.stock-market) .chip {
+  display: inline-block;
+  padding: 2px 7px;
+  border-radius: 5px;
+  font-size: 11px;
+  font-weight: 800;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+:where(.stock-market) .chips {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  padding-left: 34px;
+}
+:where(.stock-market) .players {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+:where(.stock-market) .players li {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 6px 8px;
+  border-radius: 8px;
+}
+:where(.stock-market) .players-top {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+:where(.stock-market) .players-current {
+  background: var(--highlight);
+}
+:where(.stock-market) .players-name {
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+}
+:where(.stock-market) .players-where {
+  font-weight: 500;
+}
+:where(.stock-market) .players-money {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  font-variant-numeric: tabular-nums;
+}
+:where(.stock-market) .standings {
+  margin: 0;
+  padding-left: 20px;
+  font-size: 14px;
+}
+:where(.stock-market) .log ol {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  font-size: 12.5px;
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  max-height: 260px;
+  overflow: auto;
+}
+:where(.stock-market) .log li {
+  padding-left: 8px;
+  border-left: 3px solid #e0dbc6;
+}
+:where(.stock-market) .log-up {
+  border-left-color: var(--up) !important;
+}
+:where(.stock-market) .log-down {
+  border-left-color: var(--down) !important;
+}
+:where(.stock-market) .log-money {
+  border-left-color: #d4a514 !important;
+}
+:where(.stock-market) .log-bad {
+  border-left-color: #b91c1c !important;
+  color: #7f1d1d;
+}
+:where(.stock-market) .end-game {
+  align-self: center;
+}
+:where(.stock-market) .saved {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  margin-top: 16px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--highlight);
+  font-size: 14px;
+}
+:where(.stock-market) .rules {
+  font-size: 14px;
+  line-height: 1.45;
+}
+:where(.stock-market) .rules summary {
+  cursor: pointer;
+  font-weight: 700;
+}
+:where(.stock-market) .rules ul {
+  padding-left: 18px;
+}
+:where(.stock-market) .rules li {
+  margin-bottom: 6px;
+}
+/* ---------- Board extras ---------- */
+:where(.stock-market) .sq-pickable {
+  cursor: pointer;
+  z-index: 3;
+  animation: pulse 1s ease-in-out infinite alternate;
+}
+:where(.stock-market) .tokens-crowded .token {
+  width: 1.8cqw;
+  height: 1.8cqw;
+  font-size: 0.85cqw;
+  border-width: 0.18cqw;
+}
+:where(.stock-market) .lane-cell {
+  position: relative;
+}
+:where(.stock-market) .career-tokens .tokens {
+  position: static;
+  min-height: 2.4cqw;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .panel {
+    position: static;
+    max-height: none;
+  }
+}
+/* SELL ALL squares: muted caution stripes so they read differently from buy squares. */
+:where(.stock-market) .sq-sellall {
+  background-image: repeating-linear-gradient(-45deg, rgb(0 0 0 / 0.13) 0 0.45cqw, transparent 0.45cqw 1.1cqw);
+}
+:where(.stock-market) .sq-sellall .sq-title,
+:where(.stock-market) .sq-sellall .sq-small.strong {
+  text-shadow: 0 0 0.4cqw rgb(255 255 255 / 0.35);
+}
+:where(.stock-market) .thinking::after {
+  content: "";
+  animation: dots 1.2s steps(4, end) infinite;
+}
+/* Bot turn card */
+:where(.stock-market) .bot-turn {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+:where(.stock-market) .bot-actions {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  font-size: 13.5px;
+}
+:where(.stock-market) .bot-actions li {
+  padding-left: 8px;
+  border-left: 3px solid #e0dbc6;
+}
+:where(.stock-market) .bot-turn .bot-actions li::first-letter {
+  text-transform: uppercase;
+}
+:where(.stock-market) .bot-status {
+  margin: 0;
+  font-size: 14px;
+  color: var(--muted);
+}
+:where(.stock-market) .recap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper-2);
+}
+/* ---------- Top bar ---------- */
+:where(.stock-market) .topbar {
+  grid-column: 1 / -1;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  flex-wrap: wrap;
+  padding: 4px 4px 0;
+}
+:where(.stock-market) .topbar h1 {
+  margin: 0;
+  font-size: 24px;
+  font-weight: 900;
+  letter-spacing: 0.06em;
+}
+:where(.stock-market) .topbar-info {
+  font-size: 13px;
+  color: var(--muted);
+}
+:where(.stock-market) .topbar-tools {
+  margin-left: auto;
+  display: flex;
+  gap: 14px;
+  font-size: 13px;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .topbar {
+    gap: 4px 12px;
+    padding: 0 4px;
+  }
+  :where(.stock-market) .topbar h1 {
+    font-size: 20px;
+  }
+  :where(.stock-market) .topbar-info {
+    order: 3;
+    width: 100%;
+  }
+}
+/* ---------- Inner board ---------- */
+:where(.stock-market) .board-inner {
+  display: grid;
+  gap: 0.15cqw;
+  min-width: 0;
+  min-height: 0;
+}
+:where(.stock-market) .lane-cell {
+  font-size: 0.75cqw;
+}
+:where(.stock-market) .lane-cell-v .lane-text {
+  writing-mode: vertical-rl;
+}
+:where(.stock-market) .lane-label {
+  padding: 0 0.4cqw;
+}
+:where(.stock-market) .lane-title {
+  font-size: 0.95cqw;
+}
+/* ---------- Stock Market theme ---------- */
+:where(.stock-market) .board,
+:where(.stock-market) .sq-corner,
+:where(.stock-market) .career,
+:where(.stock-market) .lane-cell,
+:where(.stock-market) .lane-label {
+  background: var(--paper);
+}
+:where(.stock-market) .lane-split {
+  background: var(--paper);
+}
+:where(.stock-market) .board .sq {
+  border-color: var(--line);
+}
+:where(.stock-market) .logo {
+  color: var(--ink);
+  letter-spacing: 0.04em;
+}
+:where(.stock-market) .topbar {
+  background: var(--header);
+  color: var(--header-ink);
+  margin: -16px -16px 0;
+  padding: 12px 16px;
+}
+:where(.stock-market) .topbar h1,
+:where(.stock-market) .turn-label b,
+:where(.stock-market) .panel .turn-over .turn-label {
+  font-family: var(--serif);
+}
+:where(.stock-market) .topbar h1 {
+  font-weight: 700;
+  letter-spacing: 0.08em;
+}
+:where(.stock-market) .topbar-info {
+  color: rgb(246 244 234 / 0.75);
+  font-family: var(--mono);
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  font-size: 12px;
+}
+:where(.stock-market) .topbar-info b {
+  color: var(--header-ink);
+}
+:where(.stock-market) .topbar .link {
+  color: var(--header-ink);
+}
+:where(.stock-market) .panel h2 {
+  font-family: var(--mono);
+  color: var(--muted);
+}
+:where(.stock-market) .turn-label {
+  font-size: 18px;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .topbar {
+    margin: -8px -8px 0;
+    padding: 10px 12px;
+  }
+}
+/* ---------- Board lines: one even black line between squares ---------- */
+:where(.stock-market) .board {
+  /* The black background shows through equal gaps, so every line is the same width. */
+  background: var(--frame);
+  border: 0.45cqw solid var(--frame);
+  padding: 0;
+  gap: 0.18cqw;
+  border-radius: 0.3cqw;
+}
+:where(.stock-market) .board .sq {
+  border: 0;
+}
+:where(.stock-market) .board-inner {
+  background: var(--paper);
+  padding: 0.25cqw;
+}
+:where(.stock-market) .lane-cell,
+:where(.stock-market) .lane-label,
+:where(.stock-market) .career {
+  border: 0.1cqw solid #8a8270;
+}
+:where(.stock-market) .sq-entry-bottom {
+  padding-top: 0.75cqw;
+}
+:where(.stock-market) .sq-entry-top {
+  padding-bottom: 0.75cqw;
+}
+:where(.stock-market) .sq-entry-left {
+  padding-right: 0.75cqw;
+}
+:where(.stock-market) .sq-entry-right {
+  padding-left: 0.75cqw;
+}
+/* ---------- Top bar: no green band, green text ---------- */
+:where(.stock-market) .topbar {
+  background: none;
+  color: var(--header);
+  margin: 0;
+  padding: 0 4px;
+}
+:where(.stock-market) .topbar-info {
+  color: var(--muted);
+}
+:where(.stock-market) .topbar-info b {
+  color: var(--header);
+}
+:where(.stock-market) .topbar .link {
+  color: var(--accent);
+}
+:where(.stock-market) .topbar-menu {
+  margin-left: auto;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .topbar {
+    margin: 0;
+    padding: 0 4px;
+  }
+  /* Line 1: title + menu. Line 2: target and round. */
+  :where(.stock-market) .topbar-menu {
+    order: 2;
+  }
+  :where(.stock-market) .topbar-info {
+    order: 3;
+    width: 100%;
+  }
+}
+/* ---------- Lines matched to the original board ---------- */
+/* Hairlines between track squares; one thick line around the inside of the track. */
+:where(.stock-market) .board {
+  gap: 0;
+  padding: 0;
+  background: var(--paper);
+  border: 0.3cqw solid var(--frame);
+  border-radius: 0;
+}
+:where(.stock-market) .board .sq {
+  box-shadow: inset 0 0 0 0.07cqw rgb(0 0 0 / 0.6);
+}
+:where(.stock-market) .board .sq.sq-landing {
+  box-shadow:
+    inset 0 0 0 0.07cqw rgb(0 0 0 / 0.6),
+    0 0 0 0.35cqw #111,
+    0 0 1.5cqw 0.4cqw rgb(255 220 0 / 0.9);
+}
+:where(.stock-market) .board-inner {
+  position: relative;
+  gap: 0;
+  padding: 0;
+  border: 0;
+  background: var(--paper);
+}
+:where(.stock-market) .lane-cell,
+:where(.stock-market) .lane-label {
+  border: 0;
+  box-shadow: inset 0 0 0 0.06cqw #9a9384;
+}
+:where(.stock-market) .career {
+  border: 0;
+  box-shadow: none;
+}
+:where(.stock-market) .career-active {
+  box-shadow: inset 0 0 0 0.3cqw #d9a400;
+}
+:where(.stock-market) .field-line {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+  pointer-events: none;
+  z-index: 1;
+}
+:where(.stock-market) .field-line path {
+  fill: none;
+  stroke: var(--frame);
+  stroke-width: 0.045;
+  stroke-linejoin: miter;
+}
+:where(.stock-market) .lane-cell .tokens,
+:where(.stock-market) .career .tokens {
+  z-index: 2;
+}
+/* Shareholders' meeting entrances: a black "house" (pentagon) whose roof points into the meeting. */
+:where(.stock-market) .entry-arrow {
+  position: absolute;
+  z-index: 1;
+  display: flex;
+  justify-content: center;
+  background: var(--frame);
+  color: #f6f4ea;
+  font-size: 0.4cqw;
+  font-weight: 800;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  line-height: 1;
+}
+:where(.stock-market) .entry-arrow-bottom,
+:where(.stock-market) .entry-arrow-top {
+  left: 0;
+  right: 0;
+  height: 1.35cqw;
+}
+:where(.stock-market) .entry-arrow-left,
+:where(.stock-market) .entry-arrow-right {
+  top: 0;
+  bottom: 0;
+  width: 1.35cqw;
+  align-items: center;
+}
+:where(.stock-market) .entry-arrow-left span {
+  writing-mode: vertical-rl;
+}
+:where(.stock-market) .entry-arrow-right span {
+  writing-mode: vertical-rl;
+  transform: rotate(180deg);
+}
+/* Roof on the meeting side; the label sits in the rectangular half. */
+:where(.stock-market) .entry-arrow-bottom {
+  top: 0;
+  align-items: flex-end;
+  padding-bottom: 0.18cqw;
+  clip-path: polygon(50% 0, 100% 48%, 100% 100%, 0 100%, 0 48%);
+}
+:where(.stock-market) .entry-arrow-top {
+  bottom: 0;
+  align-items: flex-start;
+  padding-top: 0.18cqw;
+  clip-path: polygon(0 0, 100% 0, 100% 52%, 50% 100%, 0 52%);
+}
+:where(.stock-market) .entry-arrow-left {
+  right: 0;
+  justify-content: flex-start;
+  padding-left: 0.18cqw;
+  clip-path: polygon(0 0, 52% 0, 100% 50%, 52% 100%, 0 100%);
+}
+:where(.stock-market) .entry-arrow-right {
+  left: 0;
+  justify-content: flex-end;
+  padding-right: 0.18cqw;
+  clip-path: polygon(48% 0, 100% 0, 100% 100%, 48% 100%, 0 50%);
+}
+:where(.stock-market) .sq-entry-bottom {
+  padding-top: 1.45cqw;
+}
+:where(.stock-market) .sq-entry-top {
+  padding-bottom: 1.45cqw;
+}
+:where(.stock-market) .sq-entry-left {
+  padding-right: 1.45cqw;
+}
+:where(.stock-market) .sq-entry-right {
+  padding-left: 1.45cqw;
+}
+:where(.stock-market) .sell-low {
+  margin-top: 4px;
+  padding-top: 10px;
+  border-top: 1px dashed var(--rule);
+}
+:where(.stock-market) .buy-box {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+/* Shared dice, above the player's box */
+:where(.stock-market) .dice-panel {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 10px 12px;
+  border-radius: 10px;
+  background: var(--paper);
+  border: 1px solid var(--rule);
+}
+:where(.stock-market) .dice-panel .dice-row {
+  min-height: 0;
+}
+:where(.stock-market) .dice-who {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 13px;
+  color: var(--muted);
+  text-align: right;
+}
+:where(.stock-market) .token-tiny {
+  width: 20px;
+  height: 20px;
+  font-size: 10px;
+  border-width: 1.5px;
+}
+:where(.stock-market) .dice-total {
+  white-space: nowrap;
+}
+/* ---------- Desktop layout: board | dice + controls | sidebar ---------- */
+:where(.stock-market) .turn-heading {
+  font-family: var(--serif);
+  font-weight: 700;
+  font-size: 17px;
+}
+:where(.stock-market) .card {
+  background: var(--panel);
+  border: 1px solid var(--rule);
+  border-radius: 12px;
+  padding: 12px 14px;
+  box-shadow: 0 2px 10px rgb(0 0 0 / 0.06);
+}
+:where(.stock-market) .card h2 {
+  margin: 0 0 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: var(--muted);
+}
+:where(.stock-market) .action-col {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+:where(.stock-market) .action-col .turn {
+  background: var(--panel);
+}
+:where(.stock-market) .sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-width: 0;
+}
+:where(.stock-market) .sidebar .log ol {
+  max-height: none;
+}
+:where(.stock-market) .me {
+  border-width: 2px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+:where(.stock-market) .me-top {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+:where(.stock-market) .token-big {
+  width: 44px;
+  height: 44px;
+  font-size: 18px;
+  border-width: 3px;
+}
+:where(.stock-market) .me-name {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+:where(.stock-market) .me-name b {
+  font-family: var(--serif);
+  font-size: 20px;
+}
+:where(.stock-market) .me-turn {
+  background: var(--accent);
+  color: #fff;
+}
+:where(.stock-market) .me-money {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+:where(.stock-market) .me-money div {
+  display: flex;
+  flex-direction: column;
+  padding: 8px 10px;
+  border-radius: 8px;
+  background: var(--paper);
+}
+:where(.stock-market) .me-money b {
+  font-size: 20px;
+  font-variant-numeric: tabular-nums;
+}
+:where(.stock-market) .me-holdings {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 13px;
+}
+:where(.stock-market) .me-holdings td {
+  padding: 3px 0;
+}
+:where(.stock-market) .me-holdings .num {
+  text-align: right;
+  font-variant-numeric: tabular-nums;
+  padding-left: 8px;
+}
+:where(.stock-market) .me-empty {
+  margin: 0;
+}
+@media (min-width: 901px) {
+  :where(.stock-market) .game {
+    grid-template-columns: minmax(0, 1fr) 270px 340px;
+    grid-template-rows: auto minmax(0, 1fr);
+    grid-template-areas:
+      "top top top"
+      "board action side";
+    height: 100vh;
+    min-height: 0;
+    overflow: hidden;
+    align-items: stretch;
+  }
+  :where(.stock-market) .game > .topbar {
+    grid-area: top;
+  }
+  :where(.stock-market) .game > .board-wrap {
+    grid-area: board;
+    width: min(100%, calc(100vh - 90px));
+    align-self: center;
+  }
+  :where(.stock-market) .game > .action-col {
+    grid-area: action;
+    justify-content: flex-end;
+    overflow: auto;
+  }
+  :where(.stock-market) .game > .sidebar {
+    grid-area: side;
+    min-height: 0;
+  }
+  /* The ticker takes whatever height is left. */
+  :where(.stock-market) .sidebar .log {
+    flex: 1;
+    min-height: 120px;
+    overflow: auto;
+  }
+  :where(.stock-market) .sidebar .others {
+    flex: none;
+    max-height: 40vh;
+    overflow: auto;
+  }
+  :where(.stock-market) .dice-panel {
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 16px 12px;
+  }
+  :where(.stock-market) .dice-panel .die {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    padding: 8px;
+  }
+  :where(.stock-market) .dice-panel .die .pip::after {
+    width: 11px;
+    height: 11px;
+  }
+}
+@media (min-width: 901px) {
+  /* The controls column is narrow: put each company's name on its own line above its sell controls. */
+  :where(.stock-market) .action-col .sell-row {
+    grid-template-columns: 1fr 64px auto;
+    row-gap: 4px;
+  }
+  :where(.stock-market) .action-col .sell-row .chip {
+    grid-column: 1 / -1;
+    justify-self: start;
+  }
+}
+@media (min-width: 901px) {
+  /* Keep the board beside the dice column; any spare width goes to the left edge. */
+  :where(.stock-market) .game > .board-wrap {
+    justify-self: end;
+  }
+}
+@media (max-width: 900px) {
+  /* Phones: your box first, then the other players, then the ticker. */
+  :where(.stock-market) .sidebar .me {
+    order: 1;
+  }
+  :where(.stock-market) .sidebar .others {
+    order: 2;
+  }
+  :where(.stock-market) .sidebar .log {
+    order: 3;
+  }
+}
+/* Plain dice between the board and the sidebar. */
+:where(.stock-market) .dice {
+  display: flex;
+  justify-content: center;
+  gap: 12px;
+  padding: 4px 0;
+}
+@media (min-width: 901px) {
+  :where(.stock-market) .dice .die {
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    padding: 8px;
+  }
+  :where(.stock-market) .dice .die .pip::after {
+    width: 11px;
+    height: 11px;
+  }
+}
+/* Boxes in the play area: same thin border, same corners, no colored outlines or shadows. */
+:where(.stock-market) .turn,
+:where(.stock-market) .action-col .turn,
+:where(.stock-market) .card,
+:where(.stock-market) .dice-panel,
+:where(.stock-market) .panel,
+:where(.stock-market) .saved,
+:where(.stock-market) .recap {
+  border: var(--border);
+  border-radius: var(--radius);
+  box-shadow: none;
+}
+:where(.stock-market) .me,
+:where(.stock-market) .me-active {
+  border: var(--border);
+  border-width: 1px;
+}
+:where(.stock-market) .players-current {
+  outline: none;
+}
+@media (min-width: 901px) {
+  /* The sidebar runs the full height of the right edge; the top bar spans the rest. */
+  :where(.stock-market) .game {
+    grid-template-areas:
+      "top top side"
+      "board action side";
+    padding-right: 0;
+  }
+  :where(.stock-market) .game > .sidebar {
+    grid-row: 1 / -1;
+    margin: -16px 0 -16px 0;
+    height: 100vh;
+    gap: 0;
+    background: var(--panel);
+    border-left: var(--border);
+  }
+  /* Sections, not cards: flat, divided by the same thin line. */
+  :where(.stock-market) .sidebar .card {
+    border: 0;
+    border-radius: 0;
+    background: transparent;
+    box-shadow: none;
+    padding: 14px 16px;
+  }
+  :where(.stock-market) .sidebar .card + .card {
+    border-top: var(--border);
+  }
+  :where(.stock-market) .sidebar .others {
+    max-height: 42vh;
+  }
+  :where(.stock-market) .sidebar .me {
+    background: var(--card);
+  }
+}
+:where(.stock-market) .status-note {
+  margin-left: 8px;
+  font-family: var(--mono);
+  font-size: 12px;
+  font-weight: 400;
+  color: var(--muted);
+}
+:where(.stock-market) .board-viewport {
+  display: block;
+}
+:where(.stock-market) .board-viewport.zoomed {
+  cursor: grab;
+}
+:where(.stock-market) .board-viewport.zoomed:active {
+  cursor: grabbing;
+}
+@media (min-width: 901px) {
+  :where(.stock-market) .game > .board-zoom {
+    grid-area: board;
+    width: min(100%, calc(100vh - 90px));
+    align-self: center;
+    justify-self: end;
+  }
+}
+:where(.stock-market) .topbar h1 {
+  font-family: var(--display);
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+:where(.stock-market) .turn-heading,
+:where(.stock-market) .me-name b,
+:where(.stock-market) .turn-label b {
+  font-family: var(--display);
+  font-weight: 800;
+}
+/* Sideways shareholders' meeting labels: keep their top/bottom padding (a later rule reset it). */
+:where(.stock-market) .lane-label.lane-label-v {
+  padding: 0.6cqw 0;
+}
+/* A landing in a meeting lane mustn't lift the square above the board's frame line
+   (it would paint over half of it); the token itself still sits on top. */
+:where(.stock-market) .lane-cell.sq-landing {
+  z-index: auto;
+  animation: none;
+}
+/* ---------- Phones: the whole game on one screen ---------- */
+:where(.stock-market) .m-players,
+:where(.stock-market) .m-ticker,
+:where(.stock-market) .fold-toggle,
+:where(.stock-market) .m-sheet-backdrop {
+  display: none;
+}
+@media (max-width: 900px) {
+  /* Top bar, player chips, board, then the turn panel filling what's left: no page scroll. */
+  :where(.stock-market) .game {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    height: 100dvh;
+    min-height: 0;
+    padding: 6px 8px 8px;
+    overflow: hidden;
+  }
+  :where(.stock-market) .game > .topbar {
+    flex: none;
+    padding: 0 2px;
+    gap: 2px 10px;
+  }
+  :where(.stock-market) .game > .topbar h1 {
+    font-size: 18px;
+  }
+  :where(.stock-market) .game > .sidebar {
+    display: none;
+  }
+  /* The board as large as fits, leaving room for the turn panel. */
+  :where(.stock-market) .game > .board-zoom {
+    flex: none;
+    width: min(100%, calc(100dvh - 300px));
+    align-self: center;
+  }
+  :where(.stock-market) .m-players {
+    flex: none;
+    display: flex;
+    gap: 6px;
+    overflow-x: auto;
+    scrollbar-width: none;
+  }
+  :where(.stock-market) .m-chip {
+    flex: 1 0 auto;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 4px 8px 4px 4px;
+    border: var(--border);
+    border-radius: 999px;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+  }
+  :where(.stock-market) .m-chip .token-static {
+    width: 24px;
+    height: 24px;
+    font-size: 11px;
+  }
+  :where(.stock-market) .m-chip-text {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+    font-size: 12px;
+    white-space: nowrap;
+  }
+  :where(.stock-market) .m-chip-text span {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+  }
+  :where(.stock-market) .m-chip-current {
+    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+  /* Turn panel: dice and the latest ticker line on one row, then the controls. */
+  :where(.stock-market) .game > .action-col {
+    flex: 1 1 0;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    grid-template-rows: auto minmax(0, 1fr);
+    gap: 6px 8px;
+  }
+  :where(.stock-market) .action-col .dice {
+    padding: 0;
+    gap: 4px;
+  }
+  :where(.stock-market) .action-col .dice .die {
+    width: 34px;
+    height: 34px;
+    padding: 4px;
+    border-radius: 7px;
+  }
+  :where(.stock-market) .m-ticker {
+    grid-column: -2 / -1;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    min-width: 0;
+    padding: 6px 10px;
+    border: var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    font-size: 13px;
+    text-align: left;
+  }
+  :where(.stock-market) .m-ticker > span:first-child {
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  :where(.stock-market) .m-ticker-more {
+    font-size: 18px;
+    color: var(--muted);
+  }
+  :where(.stock-market) .action-col > .turn {
+    grid-column: 1 / -1;
+    min-height: 0;
+    overflow-y: auto;
+    padding: 10px 12px;
+  }
+  :where(.stock-market) .action-col .turn-heading {
+    font-size: 17px;
+    margin-bottom: 4px;
+  }
+  :where(.stock-market) .action-col .controls {
+    gap: 8px;
+  }
+  :where(.stock-market) .action-col .controls > .muted.small {
+    display: none; /* "Space / Enter also rolls" */
+  }
+  /* Optional selling sits behind a toggle. */
+  :where(.stock-market) .fold-toggle {
+    display: block;
+    width: 100%;
+  }
+  :where(.stock-market) .fold:not(.fold-open) > .sell-box {
+    display: none;
+  }
+  :where(.stock-market) .fold-open > .sell-box {
+    margin-top: 8px;
+  }
+  /* Slide-up sheet for the ticker or a player's details. */
+  :where(.stock-market) .m-sheet-backdrop {
+    display: flex;
+    align-items: flex-end;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgb(0 0 0 / 0.35);
+  }
+  :where(.stock-market) .m-sheet {
+    position: relative;
+    width: 100%;
+    max-height: 70dvh;
+    overflow-y: auto;
+    padding: 12px;
+    border-radius: 16px 16px 0 0;
+    background: var(--page);
+    animation: sheet-up 0.18s ease-out;
+  }
+  :where(.stock-market) .m-sheet .card {
+    border: 0;
+    padding: 4px;
+    background: transparent;
+  }
+  :where(.stock-market) .m-sheet .players {
+    margin: 0;
+  }
+  :where(.stock-market) .m-sheet-close {
+    position: absolute;
+    top: 6px;
+    right: 10px;
+    border: 0;
+    background: none;
+    font-size: 26px;
+    line-height: 1;
+    color: var(--muted);
+    z-index: 1;
+  }
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game > .action-col {
+    width: 100%;
+  }
+  :where(.stock-market) .action-col .turn-heading {
+    margin: 0 0 2px;
+  }
+  :where(.stock-market) .action-col .controls .hint {
+    margin: 0;
+    font-size: 14px;
+  }
+  /* The main button (Roll dice / End turn) stays in view while the panel scrolls. */
+  :where(.stock-market) .action-col .controls .btn-big {
+    position: sticky;
+    bottom: 0;
+    padding-top: 10px;
+    padding-bottom: 10px;
+    box-shadow: 0 -8px 8px var(--panel);
+  }
+}
+@media (max-width: 900px) {
+  /* One-line top bar: title, goal and round, menu. */
+  :where(.stock-market) .game > .topbar {
+    flex-wrap: nowrap;
+    align-items: baseline;
+  }
+  :where(.stock-market) .game > .topbar h1 {
+    font-size: 17px;
+    white-space: nowrap;
+  }
+  :where(.stock-market) .game > .topbar .topbar-info {
+    order: 0;
+    width: auto;
+    flex: 1;
+    min-width: 0;
+    font-size: 10.5px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  :where(.stock-market) .game > .topbar .topbar-menu {
+    order: 1;
+    font-size: 14px;
+  }
+  :where(.stock-market) .game > .board-zoom {
+    width: min(100%, calc(100dvh - 330px));
+  }
+  :where(.stock-market) .action-col .turn-heading {
+    font-size: 15px;
+  }
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .m-hide {
+    display: none;
+  }
+  :where(.stock-market) .game > .topbar {
+    overflow: hidden;
+  }
+  :where(.stock-market) .game > .topbar h1,
+  :where(.stock-market) .game > .topbar .topbar-menu {
+    flex: none;
+  }
+  :where(.stock-market) .game > .topbar .topbar-info {
+    flex: 1 1 0;
+  }
+  /* Quantity and Buy on one row. */
+  :where(.stock-market) .action-col .buy-box {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 6px;
+  }
+  :where(.stock-market) .action-col .buy-box > .hint {
+    width: 100%;
+  }
+  :where(.stock-market) .action-col .buy-box > .btn {
+    flex: 1;
+  }
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+:where(.stock-market) .t-short {
+  display: none;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game > .topbar .t-long {
+    display: none;
+  }
+  :where(.stock-market) .game > .topbar .t-short {
+    display: inline;
+  }
+  :where(.stock-market) .game > .topbar .topbar-info {
+    font-size: 12px;
+  }
+}
+@media (max-width: 900px) {
+  /* Menu hugs the right edge. */
+  :where(.stock-market) .game > .topbar .topbar-menu {
+    margin-left: auto;
+  }
+  /* The four occupations on one row, so the button below stays in view. */
+  :where(.stock-market) .action-col .career-picks {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 4px;
+  }
+  :where(.stock-market) .action-col .career-pick {
+    align-items: center;
+    text-align: center;
+    padding: 5px 3px;
+    gap: 1px;
+    font-size: 11.5px;
+    line-height: 1.15;
+  }
+  :where(.stock-market) .action-col .career-pick small {
+    font-size: 10px;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 900px) {
+  /* Full-width rows (the desktop grid aligns items to the start). */
+  :where(.stock-market) .game > .topbar,
+  :where(.stock-market) .game > .m-players,
+  :where(.stock-market) .game > .action-col {
+    align-self: stretch;
+  }
+}
+/* Every occupation card: icon on its own line, then the name, then rolls and salary. */
+:where(.stock-market) .pick-icon {
+  display: block;
+  font-size: 15px;
+  line-height: 1.2;
+}
+/* Rolls and salary sit on the bottom edge of every card, level across the row. */
+:where(.stock-market) .career-pick small {
+  margin-top: auto;
+}
+:where(.stock-market) .local-start {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+:where(.stock-market) .local-start .saved {
+  margin: 0;
+}
+:where(.stock-market) .local-start .saved {
+  flex-wrap: nowrap;
+}
+:where(.stock-market) .local-start .saved > span {
+  flex: 1;
+  min-width: 0;
+}
+:where(.stock-market) .local-start .saved > .btn {
+  flex: none;
+}
+@media (max-width: 900px) {
+  /* The sticky main button: no fade shadow over the controls above it, and a clear gap. */
+  :where(.stock-market) .action-col .controls .btn-big {
+    box-shadow: none;
+    margin-top: 4px;
+  }
+}
+@media (max-width: 900px) {
+  /* Phones: the Sell toggle and the main button share the last row; no sticky overlap. */
+  :where(.stock-market) .action-col .controls {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 8px;
+  }
+  :where(.stock-market) .action-col .controls > * {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  :where(.stock-market) .action-col .controls .btn-big {
+    position: static;
+    margin-top: 0;
+  }
+  :where(.stock-market) .action-col .controls > .fold:not(.fold-open) {
+    flex: 0 0 auto;
+  }
+  :where(.stock-market) .action-col .controls > .fold:not(.fold-open) + .btn-big {
+    flex: 1 1 0;
+  }
+  :where(.stock-market) .action-col .fold:not(.fold-open) > .fold-toggle {
+    height: 100%;
+    padding: 0 18px;
+  }
+}
+/* ---------- Top-bar menu (☰): sound on/off, quit ---------- */
+:where(.stock-market) .game-menu {
+  position: relative;
+  margin-left: auto;
+}
+:where(.stock-market) .menu-button {
+  display: grid;
+  place-items: center;
+  width: 38px;
+  height: 38px;
+  border: var(--border);
+  border-radius: 10px;
+  background: var(--card);
+  color: var(--ink);
+  cursor: pointer;
+}
+:where(.stock-market) .menu-button[aria-expanded="true"] {
+  background: var(--paper);
+}
+:where(.stock-market) .menu-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 40;
+}
+:where(.stock-market) .menu-panel {
+  position: absolute;
+  top: calc(100% + 6px);
+  right: 0;
+  z-index: 41;
+  min-width: 200px;
+  padding: 6px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: 0 8px 24px rgb(0 0 0 / 0.14);
+  display: flex;
+  flex-direction: column;
+}
+:where(.stock-market) .menu-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 10px 12px;
+  border: 0;
+  border-radius: 7px;
+  background: none;
+  color: var(--ink);
+  font: inherit;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: left;
+  cursor: pointer;
+}
+:where(.stock-market) .menu-item:hover {
+  background: var(--paper);
+}
+:where(.stock-market) .menu-item + .menu-item {
+  border-top: 1px solid var(--rule);
+  border-radius: 0 0 7px 7px;
+}
+:where(.stock-market) .menu-quit {
+  color: var(--bad, #8e2f23);
+}
+:where(.stock-market) .switch {
+  position: relative;
+  flex: none;
+  width: 38px;
+  height: 22px;
+  border-radius: 999px;
+  background: var(--rule);
+  transition: background 0.15s;
+}
+:where(.stock-market) .switch > span {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 1px 2px rgb(0 0 0 / 0.25);
+  transition: transform 0.15s;
+}
+:where(.stock-market) .switch-on {
+  background: var(--accent);
+}
+:where(.stock-market) .switch-on > span {
+  transform: translateX(16px);
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game > .topbar .game-menu {
+    margin-left: auto;
+    font-size: inherit;
+  }
+  :where(.stock-market) .menu-button {
+    width: 34px;
+    height: 34px;
+  }
+}
+@media (max-width: 900px) {
+  /* Let the menu panel hang below the bar; the goal text still truncates on its own. */
+  :where(.stock-market) .game > .topbar {
+    overflow: visible;
+    align-items: center;
+    position: relative;
+    z-index: 20;
+  }
+}
+/* ---------- Phones (layout v2): ticker beside the players, dice on the board, your money below ---------- */
+:where(.stock-market) .m-top,
+:where(.stock-market) .m-me-bar,
+:where(.stock-market) .board-dice {
+  display: none;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game > .m-top {
+    flex: none;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 2fr);
+    gap: 6px;
+    align-self: stretch;
+  }
+  :where(.stock-market) .m-top .m-ticker {
+    display: block;
+    min-width: 0;
+    padding: 4px 8px;
+    border: var(--border);
+    border-radius: 12px;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    font-size: 11px;
+    line-height: 1.25;
+    text-align: left;
+    overflow: hidden;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+  }
+  :where(.stock-market) .m-top .m-players {
+    min-width: 0;
+  }
+  /* The old dice/ticker row: dice now live on the board. */
+  :where(.stock-market) .action-col > .dice {
+    display: none;
+  }
+  /* The same dice as before, just moved onto the board. */
+  :where(.stock-market) .board-dice {
+    display: flex;
+    justify-content: center;
+    gap: 5px;
+    margin-top: 12px;
+  }
+  :where(.stock-market) .board-dice .die {
+    width: 40px;
+    height: 40px;
+    padding: 5px;
+    border-radius: 8px;
+  }
+  :where(.stock-market) .action-col .m-me-bar {
+    grid-column: 1 / -1;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    min-width: 0;
+    padding: 6px 10px;
+    border: var(--border);
+    border-radius: var(--radius);
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+  }
+  :where(.stock-market) .m-me-money {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    font-size: 12px;
+    line-height: 1.2;
+  }
+  :where(.stock-market) .m-me-money small {
+    color: var(--muted);
+    font-size: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  :where(.stock-market) .m-me-money b {
+    font-family: var(--mono);
+  }
+  :where(.stock-market) .m-holdings {
+    flex: 1;
+    min-width: 0;
+    display: flex;
+    flex-wrap: nowrap; /* one row; swipe sideways when you own lots of stocks */
+    overflow-x: auto;
+    scrollbar-width: none;
+    overscroll-behavior-x: contain;
+    gap: 3px;
+    font-size: 11px;
+  }
+  :where(.stock-market) .m-holdings::-webkit-scrollbar {
+    display: none;
+  }
+  :where(.stock-market) .m-pill {
+    flex: none;
+    padding: 2px 5px;
+    border-radius: 4px;
+    font-weight: 800;
+    font-size: 11px;
+    white-space: nowrap;
+  }
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .m-top .m-ticker {
+    grid-column: auto;
+  }
+  :where(.stock-market) .m-top .m-ticker > span:first-child {
+    white-space: normal;
+    overflow: visible;
+  }
+}
+@media (max-width: 900px) {
+  /* Clamp the ticker text itself (the padding was letting a third line peek through). */
+  :where(.stock-market) .m-top .m-ticker {
+    display: flex;
+    align-items: center;
+  }
+  :where(.stock-market) .m-top .m-ticker > span:first-child {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+/* ---------- Game menu: an info block (goal, round) above the options ---------- */
+:where(.stock-market) .menu-info {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px 12px 10px;
+  border-bottom: 1px solid var(--rule);
+  font-size: 13px;
+  color: var(--muted);
+}
+:where(.stock-market) .menu-info b {
+  color: var(--ink);
+  font-family: var(--mono);
+}
+:where(.stock-market) .menu-info + .menu-item {
+  border-top: 0;
+}
+/* ---------- Phones (layout v3): no title bar; ticker + menu on top, then all players ---------- */
+@media (max-width: 900px) {
+  :where(.stock-market) .game > .topbar {
+    display: none;
+  }
+  :where(.stock-market) .game > .m-top {
+    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-areas:
+      "ticker menu"
+      "players players";
+    align-items: stretch;
+  }
+  :where(.stock-market) .m-top .m-ticker {
+    grid-area: ticker;
+    min-height: 36px;
+  }
+  :where(.stock-market) .m-top .game-menu {
+    grid-area: menu;
+    margin-left: 0;
+  }
+  :where(.stock-market) .m-top .menu-button {
+    height: 100%;
+    min-height: 36px;
+  }
+  :where(.stock-market) .m-top .m-players {
+    grid-area: players;
+    align-items: stretch;
+  }
+  /* You: cash, worth and every stock you own. */
+  :where(.stock-market) .m-chip.m-me {
+    flex: 0 1 auto;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 4px;
+    min-width: 60%;
+    max-width: 100%;
+    padding: 6px 8px;
+    border-radius: 12px;
+  }
+  :where(.stock-market) .m-me-head {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  :where(.stock-market) .m-me .m-me-money {
+    flex-direction: row;
+    gap: 10px;
+  }
+  :where(.stock-market) .m-me .m-holdings {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+  /* Everyone else: just token, name and net worth. */
+  :where(.stock-market) .m-top .m-chip:not(.m-me) {
+    flex: none;
+    border-radius: 12px;
+  }
+}
+@media (max-width: 900px) {
+  /* The turn panel fills whatever is left under the board. */
+  :where(.stock-market) .game > .action-col {
+    display: flex;
+    flex-direction: column;
+  }
+  :where(.stock-market) .game > .action-col > .turn {
+    flex: 1 1 0;
+  }
+  /* No title bar any more, so the board can be a little bigger. */
+  :where(.stock-market) .game > .board-zoom {
+    width: min(100%, calc(100dvh - 310px));
+  }
+}
+/* ---------- Phones (layout v4): one tidy header, every box the same height ---------- */
+:where(.stock-market) .m-me-strip {
+  display: none;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game > .m-top {
+    --m-h: 42px;
+    grid-template-columns: var(--m-h) minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-areas:
+      "menu players ticker"
+      "me me me";
+    gap: 6px;
+  }
+  :where(.stock-market) .m-top .game-menu {
+    grid-area: menu;
+  }
+  :where(.stock-market) .m-top .menu-button {
+    width: var(--m-h);
+    height: var(--m-h);
+    min-height: 0;
+    border-radius: 10px;
+  }
+  :where(.stock-market) .m-top .menu-panel {
+    left: 0;
+    right: auto;
+  }
+  :where(.stock-market) .m-top .m-players {
+    grid-area: players;
+    gap: 4px;
+  }
+  :where(.stock-market) .m-top .m-chip:not(.m-me) {
+    flex: 1 0 auto;
+    height: var(--m-h);
+    padding: 0 8px 0 5px;
+    gap: 5px;
+    border-radius: 10px;
+  }
+  :where(.stock-market) .m-top .m-chip .token-static {
+    width: 22px;
+    height: 22px;
+    font-size: 10px;
+  }
+  :where(.stock-market) .m-top .m-chip-text b {
+    font-size: 11px;
+  }
+  :where(.stock-market) .m-top .m-chip-text span {
+    font-size: 10px;
+  }
+  :where(.stock-market) .m-top .m-ticker {
+    grid-area: ticker;
+    height: var(--m-h);
+    min-height: 0;
+    padding: 0 8px;
+    border-radius: 10px;
+    font-size: 11px;
+    line-height: 1.25;
+  }
+  :where(.stock-market) .m-me-strip {
+    grid-area: me;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    height: var(--m-h);
+    min-width: 0;
+    padding: 0 8px 0 6px;
+    border: var(--border);
+    border-radius: 10px;
+    background: var(--card);
+    color: var(--ink);
+    font: inherit;
+    text-align: left;
+  }
+  :where(.stock-market) .m-me-strip .token-static {
+    flex: none;
+    width: 26px;
+    height: 26px;
+    font-size: 11px;
+  }
+  :where(.stock-market) .m-stat {
+    flex: none;
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+  }
+  :where(.stock-market) .m-stat small {
+    color: var(--muted);
+    font-size: 9px;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+  }
+  :where(.stock-market) .m-stat b {
+    font-family: var(--mono);
+    font-size: 13px;
+  }
+  :where(.stock-market) .m-me-strip .m-holdings {
+    flex: 1;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    padding-left: 10px;
+    border-left: 1px solid var(--rule);
+    align-items: center;
+  }
+  :where(.stock-market) .m-me-strip.m-chip-current {
+    border-color: var(--ink);
+    box-shadow: inset 0 0 0 1px var(--ink);
+  }
+}
+@media (max-width: 900px) {
+  /* The shorter header leaves room for a bigger board. */
+  :where(.stock-market) .game > .board-zoom {
+    width: min(100%, calc(100dvh - 292px));
+  }
+}
+@media (max-width: 900px) {
+  /* Opponent cards: one fixed width, however many there are (extra ones scroll). */
+  :where(.stock-market) .m-top .m-chip:not(.m-me) {
+    flex: none;
+    width: 84px;
+    min-width: 0;
+  }
+  :where(.stock-market) .m-top .m-chip-text {
+    min-width: 0;
+  }
+  :where(.stock-market) .m-top .m-chip-text b {
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+}
+@media (max-width: 900px) {
+  /* A soft fade at the right edge hints that more players scroll into view. */
+  :where(.stock-market) .m-top .m-players {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 14px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 14px), transparent);
+  }
+}
+/* Opened from the Home Screen: keep the turn panel clear of the iPhone's home bar. */
+@media (max-width: 900px) {
+  :where(.stock-market) .game {
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+  }
+}
+/* ---------- Turn card: the main action always sits at the bottom ---------- */
+:where(.stock-market) .turn-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .game > .action-col > .turn {
+    display: flex;
+    flex-direction: column;
+  }
+  :where(.stock-market) .action-col .turn > .controls {
+    flex: 1 1 auto;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  /* Push the action row (or a lone main button) to the bottom of the card. */
+  :where(.stock-market) .action-col .controls > .turn-actions,
+  :where(.stock-market) .action-col .controls > .btn-big,
+  :where(.stock-market) .action-col .controls > .btn-danger,
+  :where(.stock-market) .action-col .controls > .btn-row:last-child {
+    margin-top: auto;
+  }
+  :where(.stock-market) .action-col .turn-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-items: stretch;
+    gap: 8px;
+  }
+  :where(.stock-market) .action-col .turn-actions > * {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) {
+    flex: 0 0 auto;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) + .btn-big {
+    flex: 1 1 0;
+  }
+}
+@media (max-width: 900px) {
+  /* Items keep their natural height; only the gap above the actions grows. */
+  :where(.stock-market) .action-col .turn > .controls > * {
+    flex: none;
+  }
+}
+/* ---------- Tall phones (e.g. opened from the Home Screen): use the extra height ---------- */
+@media (max-width: 900px) and (min-height: 740px) {
+  /* Selling is right there: no Sell toggle, the list sits above Roll dice / End turn. */
+  :where(.stock-market) .action-col .fold-toggle {
+    display: none;
+  }
+  :where(.stock-market) .action-col .fold > .sell-box,
+  :where(.stock-market) .action-col .fold:not(.fold-open) > .sell-box {
+    display: flex;
+    margin-top: 0;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold,
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) {
+    flex: 1 1 100%;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) + .btn-big {
+    flex: 1 1 100%;
+  }
+  /* A little more breathing room everywhere. */
+  :where(.stock-market) .game {
+    gap: 10px;
+    padding-top: 10px;
+  }
+  :where(.stock-market) .game > .m-top {
+    --m-h: 48px;
+    gap: 8px;
+  }
+  :where(.stock-market) .m-top .m-ticker {
+    font-size: 12px;
+  }
+  :where(.stock-market) .m-top .m-chip-text b {
+    font-size: 12px;
+  }
+  :where(.stock-market) .m-top .m-chip-text span {
+    font-size: 11px;
+  }
+  :where(.stock-market) .m-stat b {
+    font-size: 14px;
+  }
+  :where(.stock-market) .m-pill {
+    font-size: 12px;
+    padding: 3px 6px;
+  }
+  :where(.stock-market) .game > .action-col > .turn {
+    padding: 14px 16px;
+  }
+  :where(.stock-market) .action-col .turn-heading {
+    font-size: 17px;
+    margin-bottom: 6px;
+  }
+  :where(.stock-market) .action-col .controls {
+    gap: 12px;
+  }
+  :where(.stock-market) .action-col .controls .hint {
+    font-size: 15px;
+  }
+  :where(.stock-market) .action-col .controls .btn-big {
+    padding-top: 14px;
+    padding-bottom: 14px;
+  }
+  :where(.stock-market) .board-dice {
+    margin-top: 16px;
+  }
+}
+@media (max-width: 900px) and (min-height: 740px) {
+  /* When the sell list is long, it scrolls in the space above the main button,
+     which never leaves the card. */
+  :where(.stock-market) .action-col .turn > .controls {
+    min-height: 0;
+  }
+  :where(.stock-market) .action-col .turn > .controls > .turn-actions {
+    flex: 0 1 auto;
+    min-height: 0;
+    flex-direction: column;
+    flex-wrap: nowrap;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold,
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) {
+    flex: 0 1 auto;
+    min-height: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  :where(.stock-market) .action-col .turn-actions > .btn-big,
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) + .btn-big {
+    flex: none;
+  }
+}
+@media (max-width: 900px) and (min-height: 740px) {
+  /* Keep the turn card well clear of the rounded screen corners and the home-bar swipe. */
+  :where(.stock-market) .game {
+    padding-bottom: max(60px, calc(env(safe-area-inset-bottom) + 32px));
+  }
+}
+@media (max-width: 900px) and (min-height: 740px) {
+  /* With a buy offer showing there isn't room for the whole sell list too:
+     fall back to the Sell toggle beside End turn. */
+  :where(.stock-market) .action-col .turn > .controls > .buy-box ~ .turn-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions .fold-toggle {
+    display: block;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions .fold:not(.fold-open) > .sell-box {
+    display: none;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions > .fold:not(.fold-open) {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions > .fold:not(.fold-open) + .btn-big {
+    flex: 1 1 0;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions > .fold.fold-open > .sell-box {
+    margin-top: 8px;
+  }
+}
+@media (max-width: 900px) and (min-height: 740px) and (max-height: 899px) {
+  /* ~800px tall (the installed app): not enough room for the whole sell list,
+     so use the Sell toggle beside the main button (the inline list needs 900px+). */
+  :where(.stock-market) .action-col .turn > .controls > .turn-actions {
+    flex-direction: row;
+    flex-wrap: wrap;
+  }
+  :where(.stock-market) .action-col .turn-actions .fold-toggle {
+    display: block;
+  }
+  :where(.stock-market) .action-col .turn-actions .fold:not(.fold-open) > .sell-box {
+    display: none;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) {
+    flex: 0 0 auto;
+    overflow: visible;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold:not(.fold-open) + .btn-big {
+    flex: 1 1 0;
+  }
+}
+/* ---------- Selling: inline on desktop; a slide-up sheet on phones ---------- */
+:where(.stock-market) .fold-backdrop,
+:where(.stock-market) .fold-head {
+  display: none;
+}
+@media (max-width: 900px) {
+  :where(.stock-market) .action-col .fold:not(.fold-open) > .fold-body {
+    display: none;
+  }
+  :where(.stock-market) .action-col .fold.fold-open > .fold-body {
+    display: block;
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 51;
+    max-height: 70dvh;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding: 12px 14px calc(18px + env(safe-area-inset-bottom));
+    border-radius: 16px 16px 0 0;
+    background: var(--page);
+    box-shadow: 0 -8px 24px rgb(0 0 0 / 0.18);
+    animation: sheet-up 0.18s ease-out;
+  }
+  :where(.stock-market) .action-col .fold-open > .fold-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    z-index: 50;
+    background: rgb(0 0 0 / 0.35);
+  }
+  :where(.stock-market) .action-col .fold-open .fold-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+    font-size: 16px;
+  }
+  :where(.stock-market) .action-col .fold-body > .sell-box {
+    display: flex;
+    margin-top: 0;
+  }
+  /* The toggle keeps its place in the actions row while the sheet is open. */
+  :where(.stock-market) .action-col .turn-actions > .fold.fold-open {
+    flex: 0 0 auto;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold.fold-open + .btn-big {
+    flex: 1 1 0;
+  }
+}
+@media (max-width: 900px) and (min-height: 900px) {
+  /* Very tall phones: room to list your stocks inline above the main button. */
+  :where(.stock-market) .action-col .fold-toggle {
+    display: none;
+  }
+  :where(.stock-market) .action-col .fold > .fold-body,
+  :where(.stock-market) .action-col .fold:not(.fold-open) > .fold-body {
+    display: block;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold {
+    flex: 1 1 100%;
+  }
+  :where(.stock-market) .action-col .turn-actions > .fold + .btn-big {
+    flex: 1 1 100%;
+  }
+  /* …except with a buy offer showing: then the Sell toggle and its sheet. */
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions .fold-toggle {
+    display: block;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions .fold:not(.fold-open) > .fold-body {
+    display: none;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions > .fold {
+    flex: 0 0 auto;
+  }
+  :where(.stock-market) .action-col .buy-box ~ .turn-actions > .fold + .btn-big {
+    flex: 1 1 0;
+  }
+}
+/* ---------- Hint that a list scrolls: a soft fade at the edge it continues past ---------- */
+@media (max-width: 900px) {
+  /* Your stock pills (sideways). */
+  :where(.stock-market) .m-me-strip .m-holdings {
+    -webkit-mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+    mask-image: linear-gradient(to right, #000 calc(100% - 16px), transparent);
+    padding-right: 14px;
+  }
+  /* The sell sheet (downwards). */
+  :where(.stock-market) .action-col .fold.fold-open > .fold-body {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 18px), transparent);
+  }
+}
+@media (max-width: 900px) and (min-height: 900px) {
+  /* The inline sell list on very tall phones (downwards). */
+  :where(.stock-market) .action-col .turn-actions > .fold {
+    -webkit-mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+    mask-image: linear-gradient(to bottom, #000 calc(100% - 14px), transparent);
+    padding-bottom: 12px;
+  }
+}
+/* ---------- Price tracker: strip clamped to the window; the slider frame moves at the ends ---------- */
+:where(.stock-market) .tracker-window {
+  --strip-left: clamp(calc(100% - var(--cols) * var(--col-w)), calc(50% - var(--pos) * var(--col-w)), 0px);
+}
+:where(.stock-market) .tracker-strip {
+  left: var(--strip-left);
+  transform: none;
+  transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+:where(.stock-market) .tracker-slider {
+  left: calc(var(--strip-left) + var(--pos) * var(--col-w));
+  transition: left 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+/* ---------- Confirm dialog ---------- */
+:where(.stock-market) .confirm-backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 20px;
+  background: rgb(0 0 0 / 0.4);
+}
+:where(.stock-market) .confirm {
+  width: min(100%, 360px);
+  padding: 18px;
+  border: var(--border);
+  border-radius: var(--radius);
+  background: var(--card);
+  box-shadow: 0 12px 32px rgb(0 0 0 / 0.25);
+  animation: sheet-up 0.15s ease-out;
+}
+:where(.stock-market) .confirm p {
+  margin: 0 0 16px;
+  font-size: 15px;
+  line-height: 1.4;
+  color: var(--ink);
+}
+:where(.stock-market) .confirm-buttons {
+  display: flex;
+  gap: 8px;
+  justify-content: flex-end;
+}
+:where(.stock-market) .confirm-buttons .btn {
+  flex: 1;
+}
+@keyframes land {
+  from {
+    transform: scale(1.12);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+@keyframes pop {
+  from {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+@keyframes pulse {
+  from {
+    box-shadow: 0 0 0 0.2cqw var(--accent);
+  }
+  to {
+    box-shadow:
+      0 0 0 0.6cqw var(--accent),
+      0 0 2cqw var(--accent);
+  }
+}
+@keyframes dots {
+  0% {
+    content: "";
+  }
+  25% {
+    content: ".";
+  }
+  50% {
+    content: "..";
+  }
+  75% {
+    content: "...";
+  }
+}
+@keyframes sheet-up {
+  from {
+    transform: translateY(40%);
+  }
+  to {
+    transform: none;
+  }
+}

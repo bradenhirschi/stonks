@@ -1,6 +1,7 @@
 "use client";
 
 import type { CSSProperties, ReactNode } from "react";
+import { Die } from "@/platform/Dice";
 import {
   CAREERS,
   GRID,
@@ -14,11 +15,10 @@ import {
   type Career,
   type Lane,
   type Side,
-} from "@/lib/board";
-import type { Player, Pos } from "@/lib/engine";
-import { STOCKS, lowestPrice } from "@/lib/stocks";
+} from "../board";
+import type { Player, Pos } from "../engine";
+import { STOCKS, lowestPrice } from "../stocks";
 import PriceTracker from "./PriceTracker";
-import { Die } from "./Dice";
 
 interface BoardProps {
   players: Player[];

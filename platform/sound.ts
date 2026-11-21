@@ -3,7 +3,8 @@
 import { useSyncExternalStore } from "react";
 
 /**
- * Game sounds, synthesized with the Web Audio API (no audio files to load).
+ * Shared sound plumbing for every game: the on/off setting, the audio context, and dice.
+ * Sounds are synthesized with the Web Audio API (no audio files to load).
  *
  * Browsers only allow sound after the page has been tapped or clicked, so the audio
  * context is created lazily and resumed on the first interaction.
@@ -11,13 +12,16 @@ import { useSyncExternalStore } from "react";
 
 let ctx: AudioContext | null = null;
 
-const SOUND_OFF_KEY = "stock-market:sound-off";
+const SOUND_OFF_KEY = "board-games:sound-off";
+/** Where the setting lived before the site hosted more than one game. */
+const LEGACY_SOUND_OFF_KEY = "stock-market:sound-off";
 let soundOn = readSoundOn();
 const listeners = new Set<() => void>();
 
 function readSoundOn(): boolean {
   try {
-    return typeof localStorage === "undefined" || localStorage.getItem(SOUND_OFF_KEY) !== "1";
+    if (typeof localStorage === "undefined") return true;
+    return (localStorage.getItem(SOUND_OFF_KEY) ?? localStorage.getItem(LEGACY_SOUND_OFF_KEY)) !== "1";
   } catch {
     return true;
   }
@@ -58,6 +62,11 @@ function audio(): AudioContext | null {
   return ctx;
 }
 
+/** The audio context to play a sound on, or null when sound is off or unavailable. */
+export function soundContext(): AudioContext | null {
+  return soundOn ? audio() : null;
+}
+
 // Unlock audio on the first tap/click/key so later sounds (e.g. another player's roll) can play.
 if (typeof window !== "undefined") {
   const unlock = () => {
@@ -80,7 +89,7 @@ function noiseBuffer(ac: AudioContext): AudioBuffer {
 }
 
 /** One die hitting the table: a short filtered noise burst plus a little wooden "tock". */
-function clack(ac: AudioContext, out: AudioNode, at: number, level: number) {
+export function clack(ac: AudioContext, out: AudioNode, at: number, level: number) {
   const src = ac.createBufferSource();
   src.buffer = noiseBuffer(ac);
   const band = ac.createBiquadFilter();
@@ -107,8 +116,7 @@ function clack(ac: AudioContext, out: AudioNode, at: number, level: number) {
 
 /** Two dice rattling and settling: impacts that get quieter and closer together. */
 export function playDice() {
-  if (!soundOn) return;
-  const ac = audio();
+  const ac = soundContext();
   if (!ac) return;
   const out = ac.createGain();
   out.gain.value = 0.55;
@@ -125,106 +133,5 @@ export function playDice() {
       gap *= 0.78;
       level *= 0.78;
     }
-  }
-}
-
-/** A single bright bell "ding" (a few inharmonic partials, like a desk bell). */
-export function playBell() {
-  if (!soundOn) return;
-  const ac = audio();
-  if (!ac) return;
-  const at = ac.currentTime + 0.01;
-  const base = 1320;
-  const partials: [ratio: number, level: number, decay: number][] = [
-    [1, 0.5, 1.6],
-    [2.0, 0.18, 1.1],
-    [2.76, 0.12, 0.8],
-    [5.4, 0.05, 0.4],
-  ];
-  const out = ac.createGain();
-  out.gain.value = 0.35;
-  out.connect(ac.destination);
-  for (const [ratio, level, decay] of partials) {
-    const osc = ac.createOscillator();
-    osc.type = "sine";
-    osc.frequency.value = base * ratio;
-    const g = ac.createGain();
-    g.gain.setValueAtTime(0, at);
-    g.gain.linearRampToValueAtTime(level, at + 0.004);
-    g.gain.exponentialRampToValueAtTime(0.0005, at + decay);
-    osc.connect(g).connect(out);
-    osc.start(at);
-    osc.stop(at + decay + 0.05);
-  }
-}
-
-/** A cash register: a mechanical "ca" (drawer clack) then a bright "ching". */
-export function playCash() {
-  if (!soundOn) return;
-  const ac = audio();
-  if (!ac) return;
-  const at = ac.currentTime + 0.01;
-  const out = ac.createGain();
-  out.gain.value = 0.4;
-  out.connect(ac.destination);
-
-  // "Ca": two quick low clacks.
-  clack(ac, out, at, 0.8);
-  clack(ac, out, at + 0.045, 0.6);
-
-  // "Ching": a cluster of high, slightly detuned partials that ring out.
-  const ching = at + 0.08;
-  const partials: [freq: number, level: number, decay: number][] = [
-    [2637, 0.35, 0.9],
-    [2660, 0.25, 0.9],
-    [3951, 0.22, 0.7],
-    [5274, 0.14, 0.5],
-    [6650, 0.08, 0.35],
-  ];
-  for (const [freq, level, decay] of partials) {
-    const osc = ac.createOscillator();
-    osc.type = "sine";
-    osc.frequency.value = freq;
-    const g = ac.createGain();
-    g.gain.setValueAtTime(0, ching);
-    g.gain.linearRampToValueAtTime(level, ching + 0.003);
-    g.gain.exponentialRampToValueAtTime(0.0005, ching + decay);
-    osc.connect(g).connect(out);
-    osc.start(ching);
-    osc.stop(ching + decay + 0.05);
-  }
-}
-
-/** A short "womp womp": two falling, slightly sagging horn notes. */
-export function playLoss() {
-  if (!soundOn) return;
-  const ac = audio();
-  if (!ac) return;
-  const at = ac.currentTime + 0.01;
-  const out = ac.createGain();
-  out.gain.value = 0.22;
-  const tone = ac.createBiquadFilter();
-  tone.type = "lowpass";
-  tone.frequency.value = 1400;
-  tone.connect(out).connect(ac.destination);
-
-  const notes: [start: number, from: number, to: number, length: number][] = [
-    [0, 311, 294, 0.24],
-    [0.28, 262, 220, 0.5],
-  ];
-  for (const [offset, from, to, length] of notes) {
-    const t0 = at + offset;
-    const osc = ac.createOscillator();
-    osc.type = "sawtooth";
-    osc.frequency.setValueAtTime(from, t0);
-    osc.frequency.linearRampToValueAtTime(to, t0 + length);
-    const g = ac.createGain();
-    g.gain.setValueAtTime(0, t0);
-    g.gain.linearRampToValueAtTime(1, t0 + 0.03);
-    g.gain.setValueAtTime(1, t0 + length * 0.6);
-    g.gain.exponentialRampToValueAtTime(0.001, t0 + length);
-    osc.connect(g).connect(tone);
-    osc.start(t0);
-    osc.stop(t0 + length + 0.02);
   }
 }

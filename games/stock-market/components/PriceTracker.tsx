@@ -1,7 +1,7 @@
 "use client";
 
 import type { CSSProperties } from "react";
-import { FALLERS, MARKET_MAX, MARKET_MIN, RISERS, STOCKS, priceAt, type StockId } from "@/lib/stocks";
+import { FALLERS, MARKET_MAX, MARKET_MIN, RISERS, STOCKS, priceAt, type StockId } from "../stocks";
 
 const LEVELS = Array.from({ length: MARKET_MAX - MARKET_MIN + 1 }, (_, i) => MARKET_MIN + i);
 

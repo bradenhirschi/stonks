@@ -1,11 +1,11 @@
 import type { MetadataRoute } from "next";
 
-/** Lets phones pin the game to the Home Screen and open it full screen, like an app. */
+/** Lets phones pin the site to the Home Screen and open it full screen, like an app. */
 export default function manifest(): MetadataRoute.Manifest {
   return {
-    name: "Stock Market",
-    short_name: "Stock Market",
-    description: "A stock market board game.",
+    name: "Board Games",
+    short_name: "Board Games",
+    description: "Board games to play with friends, online or on one device.",
     start_url: "/",
     scope: "/",
     display: "standalone",

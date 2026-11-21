@@ -1,8 +1,8 @@
 "use client";
 
 import { useCallback, useEffect, useReducer, useRef, useState, type ReactNode } from "react";
-import { botMove } from "@/lib/bot";
-import { CAREERS, START_SQUARES, TRACK, arrowFor, sideOf } from "@/lib/board";
+import { botMove } from "../bot";
+import { CAREERS, START_SQUARES, TRACK, arrowFor, sideOf } from "../board";
 import {
   canRoll,
   feeName,
@@ -15,12 +15,13 @@ import {
   type BuyOffer,
   type GameState,
   type Player,
-} from "@/lib/engine";
-import { playBell, playCash, playDice, playLoss, setSoundOn, useSoundOn } from "@/lib/sound";
-import { STOCKS, STOCK_ORDER, lowestPrice, priceAt, type StockId } from "@/lib/stocks";
+} from "../engine";
+import { Die } from "@/platform/Dice";
+import { playDice, setSoundOn, useSoundOn } from "@/platform/sound";
+import ZoomableBoard from "@/platform/ZoomableBoard";
+import { playBell, playCash, playLoss } from "../sounds";
+import { STOCKS, STOCK_ORDER, lowestPrice, priceAt, type StockId } from "../stocks";
 import Board from "./Board";
-import ZoomableBoard from "./ZoomableBoard";
-import { Die } from "./Dice";
 
 export const SAVE_KEY = "stock-market:game:v3";
 

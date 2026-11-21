@@ -1,20 +1,17 @@
+import type { Resolved as GenericResolved } from "@/platform/game";
 import { botMove } from "./bot";
 import { reducer, type Action, type GameState } from "./engine";
 
 /**
- * Online play (no server): the phone whose turn it is applies the move with the
- * shared rules, then saves the new state plus the list of actions it applied.
- * Every other phone replays those actions to animate the move.
+ * Stock Market's side of online play (see platform/game.ts): the phone whose turn it is
+ * applies the move with these rules, then saves the new state plus the list of actions it
+ * applied. Every other phone replays those actions to animate the move.
  */
 
 /** A player's choice. "rollDice" becomes a "roll" with the dice filled in. */
 export type Decision = Action | { type: "rollDice" };
 
-export interface Resolved {
-  state: GameState;
-  /** Every action applied, in order, with dice filled in: replayable by any client. */
-  actions: Action[];
-}
+export type Resolved = GenericResolved<GameState, Action>;
 
 const d6 = () => 1 + Math.floor(Math.random() * 6);
 

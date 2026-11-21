@@ -7,7 +7,8 @@ import {
   type RulesTestEnvironment,
 } from "@firebase/rules-unit-testing";
 
-// Run with `npm run test:rules` (starts the Firestore emulator).
+// Run with `npm run test:rules` (starts the Firestore emulator). These cover the shared room
+// rules, through Stock Market's collection.
 
 let env: RulesTestEnvironment;
 
@@ -15,7 +16,7 @@ const lobby = (over: Record<string, unknown> = {}) => ({
   code: "ABCDE",
   hostUid: "host",
   status: "lobby",
-  target: 100000,
+  settings: { target: 100000 },
   seats: [{ uid: "host", name: "Host", isBot: false }],
   memberUids: ["host"],
   version: 0,
@@ -51,7 +52,7 @@ async function seed(data: Record<string, unknown>) {
 
 beforeAll(async () => {
   env = await initializeTestEnvironment({
-    projectId: "demo-stock-market",
+    projectId: "demo-board-games",
     firestore: { rules: readFileSync("firestore.rules", "utf8"), host: "127.0.0.1", port: 8085 },
   });
 });
@@ -75,7 +76,11 @@ describe("creating a room", () => {
     await assertFails(room("host").set(lobby({ status: "playing" })));
   });
   it("needs a valid code", async () => {
-    await assertFails(db("host").doc("stockMarketRooms/abc").set(lobby({ code: "abc" })));
+    await assertFails(
+      db("host")
+        .doc("stockMarketRooms/abc")
+        .set(lobby({ code: "abc" })),
+    );
   });
 });
 
@@ -95,16 +100,19 @@ describe("the lobby", () => {
     await assertFails(room("amy").update({ memberUids: [] }));
   });
   it("doesn't let a non-host change settings or start the game", async () => {
-    await assertFails(room("amy").update({ target: 5 }));
+    await assertFails(room("amy").update({ settings: { target: 5 } }));
     await assertFails(room("amy").update({ status: "playing", version: 1 }));
+  });
+  it("lets the host change settings", async () => {
+    await assertSucceeds(room("host").update({ settings: { target: 50000 } }));
   });
   it("lets only the host choose the bot level", async () => {
     await seed(lobby({ memberUids: ["host", "amy"] }));
-    await assertFails(room("amy").update({ botLevel: "easy" }));
-    await assertSucceeds(room("host").update({ botLevel: "easy" }));
+    await assertFails(room("amy").update({ settings: { target: 100000, botLevel: "easy" } }));
+    await assertSucceeds(room("host").update({ settings: { target: 100000, botLevel: "easy" } }));
   });
-  it("lets a player leave a room that has no bot level saved", async () => {
-    await seed(lobby({ memberUids: ["host", "amy"] }));
+  it("lets a player leave a room that has no settings saved", async () => {
+    await seed(lobby({ memberUids: ["host", "amy"], settings: null }));
     await assertSucceeds(room("amy").update({ memberUids: ["host"] }));
   });
   it("lets the host start the game", async () => {
@@ -135,10 +143,11 @@ describe("during a game", () => {
     await assertFails(room("host").update({ version: 6 }));
   });
   it("never lets the bot level change mid-game", async () => {
-    await assertFails(room("amy").update({ version: 6, botLevel: "easy" }));
+    await assertFails(room("amy").update({ version: 6, settings: { target: 100000, botLevel: "easy" } }));
   });
   it("never lets seats or membership change", async () => {
     await assertFails(room("amy").update({ version: 6, memberUids: ["amy"] }));
     await assertFails(room("amy").update({ version: 6, seats: [] }));
+    await assertFails(room("amy").update({ version: 6, settings: { target: 5 } }));
   });
 });

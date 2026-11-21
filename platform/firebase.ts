@@ -33,7 +33,7 @@ export const FIREBASE_CONFIG: FirebaseOptions | null = {
 
 /** `NEXT_PUBLIC_FIREBASE_EMULATORS=1` points the app at local emulators (dev and tests). */
 const USE_EMULATORS = process.env.NEXT_PUBLIC_FIREBASE_EMULATORS === "1";
-const EMULATOR_CONFIG: FirebaseOptions = { apiKey: "demo-key", projectId: "demo-stock-market", authDomain: "localhost" };
+const EMULATOR_CONFIG: FirebaseOptions = { apiKey: "demo-key", projectId: "demo-board-games", authDomain: "localhost" };
 
 export const onlineAvailable = USE_EMULATORS || FIREBASE_CONFIG !== null;
 

@@ -1,5 +1,5 @@
 {
-  "name": "stonks",
+  "name": "board-games",
   "version": "0.1.0",
   "private": true,
   "scripts": {
@@ -8,7 +8,7 @@
     "start": "next start",
     "lint": "eslint",
     "test": "vitest run",
-    "test:rules": "firebase emulators:exec --project demo-stock-market --only firestore 'vitest run --config vitest.rules.config.ts'"
+    "test:rules": "firebase emulators:exec --project demo-board-games --only firestore 'vitest run --config vitest.rules.config.ts'"
   },
   "dependencies": {
     "firebase": "^12.19.0",
