@@ -711,7 +711,7 @@ button.link:disabled {
 }
 .sell-row {
   display: grid;
-  grid-template-columns: 1fr auto 56px auto;
+  grid-template-columns: 1fr auto 56px auto auto;
   align-items: center;
   gap: 6px;
 }
@@ -1690,8 +1690,19 @@ button.link {
 @media (min-width: 901px) {
   /* The controls column is narrow: put each company's name on its own line above its sell controls. */
   .action-col .sell-row {
-    grid-template-columns: 1fr 64px auto;
+    grid-template-columns: auto minmax(40px, 1fr) auto auto;
     row-gap: 4px;
+  }
+  .action-col .sell-row > .muted,
+  .action-col .sell-row .btn {
+    white-space: nowrap;
+  }
+  .action-col .sell-row {
+    column-gap: 4px;
+  }
+  .action-col .sell-row .btn {
+    padding-left: 8px;
+    padding-right: 8px;
   }
   .action-col .sell-row .chip {
     grid-column: 1 / -1;

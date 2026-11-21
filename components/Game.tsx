@@ -1080,6 +1080,20 @@ function SellRow({
         }}
         aria-label={`Shares of ${s.name} to sell`}
       />
+      {/* Selling all but one share keeps the right to enter that company's shareholders' meetings. */}
+      <button
+        className="btn btn-small sell-keep1"
+        disabled={disabled || owned < 2}
+        style={owned < 2 ? { visibility: "hidden" } : undefined}
+        onClick={() => {
+          setQty(owned - 1);
+          onChange?.(owned - 1);
+        }}
+        title={`Sell all but one ${s.name} share, so you can still use its shareholders' meetings`}
+        aria-label={`Sell all but one ${s.name} share`}
+      >
+        Keep 1
+      </button>
       <button className="btn btn-small" disabled={disabled} onClick={() => onSell(n)}>
         Sell ${fmt(n * price)}
       </button>

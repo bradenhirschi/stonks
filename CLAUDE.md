@@ -9,9 +9,11 @@ rules, how online play works, and the file map; read it first.
 ## Workflow (the owner relies on this)
 
 - **Work on `dev`.** Never push to `main`. Commit to `dev` and push.
-- **One open PR, `dev` → `main`, at all times when `dev` has changes.** Open it as soon as there
-  are new commits after a merge (title "dev → main"), and keep its description listing every
-  change since the last release, with the dev preview link. The owner merges; never merge yourself.
+- **Whenever `dev` differs from `main`, there must be an open PR `dev` → `main`.** Check after
+  every push to `dev` (and at the start of a session): if `dev` is ahead of `main` and no PR is
+  open, open one right away (title "dev → main"), without being asked and without waiting for
+  more work. Keep its description listing every change since the last release, with the dev
+  preview link. The owner merges; never merge yourself.
 - **After a merge:** fast-forward `dev` to `main` (`git fetch origin && git merge --ff-only
   origin/main && git push origin dev`).
 - **Dev preview:** https://stonks-git-dev-bradenhirschi29s-projects.vercel.app (Vercel builds
